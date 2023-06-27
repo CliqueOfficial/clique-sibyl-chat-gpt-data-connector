@@ -14,11 +14,11 @@ use sibyl_base_data_connector::utils::simple_tls_client;
 const CHATGPT_API_HOST: &'static str = "api.openai.com";
 const CHATGPT_CHAT_SUFFIX: &'static str = "/v1/chat/completions";
 
-pub struct ChatgptConnector {
+pub struct ChatGPTConnector {
 
 }
 
-impl DataConnector for ChatgptConnector {
+impl DataConnector for ChatGPTConnector {
     fn query(&self, query_type: &Value, query_param: &Value) -> Result<Value, String> {
         let query_type_str = match query_type.as_str() {
             Some(r) => r,
