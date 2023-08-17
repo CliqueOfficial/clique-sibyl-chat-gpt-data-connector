@@ -50,7 +50,7 @@ impl DataConnector for ChatGPTConnector {
                     encoded_json.len(),
                     encoded_json
                 );
-                simple_tls_client(CHATGPT_API_HOST, &req, 443, "chatgpt_chat")
+                simple_tls_client(CHATGPT_API_HOST, &req, 443)
             },
             _ => {  
                 Err(NetworkError::String(format!("Unexpected query_type: {:?}", query_type)))
