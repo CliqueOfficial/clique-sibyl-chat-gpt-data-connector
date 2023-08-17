@@ -1,14 +1,9 @@
 use std::prelude::v1::*;
-use sibyl_base_data_connector::base::DataConnector;
-use sibyl_base_data_connector::serde_json::json;
-use std::string::ToString;
-use sibyl_base_data_connector::serde_json::Value;
-use std::str;
-use String;
-use std::panic;
-// use std::untrusted::time::SystemTimeEx;
-use sibyl_base_data_connector::utils::{parse_result, tls_post};
 use sibyl_base_data_connector::utils::simple_tls_client;
+use sibyl_base_data_connector::base::DataConnector;
+use sibyl_base_data_connector::serde_json::Value;
+use sibyl_base_data_connector::serde_json::json;
+use sibyl_base_data_connector::errors::NetworkError;
 
 // ChatGPT GraphQL API
 const CHATGPT_API_HOST: &'static str = "api.openai.com";
@@ -19,13 +14,13 @@ pub struct ChatGPTConnector {
 }
 
 impl DataConnector for ChatGPTConnector {
-    fn query(&self, query_type: &Value, query_param: &Value) -> Result<Value, String> {
+    fn query(&self, query_type: &Value, query_param: &Value) -> Result<Value, NetworkError> {
         let query_type_str = match query_type.as_str() {
             Some(r) => r,
             _ => {
                 let err = format!("query_type to str failed");
                 println!("{:?}", err);
-                return Err(err);
+                return Err(NetworkError::String(err));
             }
         };
         match query_type_str {
@@ -55,33 +50,10 @@ impl DataConnector for ChatGPTConnector {
                     encoded_json.len(),
                     encoded_json
                 );
-
-                let plaintext = match tls_post(CHATGPT_API_HOST, &req, 443) {
-                    Ok(r) => r,
-                    Err(e) => {
-                        let err = format!("tls_post to str: {:?}", e);
-                        println!("{:?}", err);
-                        return Err(err);
-                    }
-                };
-                let mut reason = "".to_string();
-                let mut result: Value = json!("fail");
-                match parse_result(&plaintext) {
-                    Ok(r) => {
-                        result = r;
-                    },
-                    Err(e) => {
-                        reason = e;
-                    }
-                }
-                // println!("parse result {:?}", result);
-                Ok(json!({
-                    "result": result,
-                    "reason": reason
-                }))
+                simple_tls_client(CHATGPT_API_HOST, &req, 443, "chatgpt_chat")
             },
-            _ => {
-                Err(format!("Unexpected query_type: {:?}", query_type))
+            _ => {  
+                Err(NetworkError::String(format!("Unexpected query_type: {:?}", query_type)))
             }
         }
     }
