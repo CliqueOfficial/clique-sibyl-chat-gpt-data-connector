@@ -5,9 +5,7 @@ use sibyl_base_data_connector::serde_json::Value;
 use sibyl_base_data_connector::serde_json::json;
 use sibyl_base_data_connector::errors::NetworkError;
 
-// ChatGPT GraphQL API
-const CHATGPT_API_HOST: &'static str = "api.openai.com";
-const CHATGPT_CHAT_SUFFIX: &'static str = "/v1/chat/completions";
+use crate::env;
 
 pub struct ChatGPTConnector {
 
@@ -44,13 +42,13 @@ impl DataConnector for ChatGPTConnector {
                     Content-Type: application/json\r\n\
                     Content-Length: {}\r\n\r\n\
                     {}",
-                    CHATGPT_CHAT_SUFFIX,
-                    CHATGPT_API_HOST,
+                    env::CHATGPT_CHAT_SUFFIX,
+                    env::CHATGPT_API_HOST,
                     query_param["bearer"].as_str().unwrap_or(""),
                     encoded_json.len(),
                     encoded_json
                 );
-                simple_tls_client(CHATGPT_API_HOST, &req, 443)
+                simple_tls_client(env::CHATGPT_API_HOST, &req, 443)
             },
             _ => {  
                 Err(NetworkError::String(format!("Unexpected query_type: {:?}", query_type)))

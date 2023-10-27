@@ -6,4 +6,5 @@ extern crate sgx_tstd as std;
 extern crate sibyl_base_data_connector;
 // extern crate serde_json;
 
+mod env;
 pub mod chatgpt;
